@@ -4,6 +4,8 @@ from django.contrib.auth.models import BaseUserManager
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from .constants import *
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 
 # Create your models here.
@@ -21,25 +23,15 @@ class MyAccountManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, email, password=None):
-        if not email:
-            raise ValueError("User must have an email address")
-
-        user = self.model(
-            email=self.normalize_email(email),
-        )
-        user.is_active = True
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
 
 class Sales(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    full_name = models.CharField(max_length=100, null=True, blank=True)
-    email = models.EmailField(max_length=200, null=True, blank=True)
+    full_name = models.CharField(max_length=100, null=True)
+    email = models.EmailField(max_length=200)
     last_login = models.DateField(auto_now=True)
+    sale_password = models.CharField(max_length=100, null=True)
+    is_active = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'Sales'
@@ -52,16 +44,25 @@ class Sales(models.Model):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ['email']
 
+    def __str__(self):
+        return str(self.full_name)
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Sales.objects.create(user=instance, email=instance.username)
+
 
 class Developer(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    developer_name = models.CharField(max_length=100, null=True, blank=True)
-    company_id = models.CharField(max_length=100, null=True, blank=True)
-    email = models.EmailField(unique=True, max_length=200, null=True, blank=True)
-    role = models.CharField(max_length=100, choices=ROLE_CHOICES, null=True, blank=True)
-    year_of_experience = models.PositiveIntegerField(null=True, blank=True)
-    induction_comment = models.TextField(null=True, blank=True)
-    tech_stack = ArrayField(models.CharField(max_length=1000), null=True, blank=True)
+    developer_name = models.CharField(max_length=100)
+    company_id = models.CharField(max_length=100)
+    email = models.EmailField(unique=True, max_length=200)
+    role = models.CharField(max_length=100, choices=ROLE_CHOICES)
+    year_of_experience = models.FloatField()
+    induction_comment = models.TextField()
+    tech_stack = ArrayField(models.CharField(max_length=1000))
     date_joined = models.DateField()
     is_engaged = models.BooleanField(default=False)
 
@@ -83,11 +84,14 @@ class Project(models.Model):
     class Meta:
         db_table = 'Project'
 
+    def __str__(self):
+        return str(self.project_name)
+
 
 class Cilent(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    cilent_name = models.CharField(max_length=100, null=True, blank=True)
-    cilent_company_name = models.CharField(max_length=100, null=True, blank=True)
+    cilent_name = models.CharField(max_length=100)
+    cilent_company_name = models.CharField(max_length=100)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     class Meta:
@@ -105,7 +109,4 @@ class Scheduled_Call(models.Model):
 
     class Meta:
         db_table = 'Scheduled_call'
-
-
-
 

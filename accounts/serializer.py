@@ -5,21 +5,18 @@ from .models import *
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
 
     class Meta:
-        model = User
+        model = Sales
         fields = ('name', 'email', 'password')
 
-    def create(self, validated_data):
-        password = validated_data.pop('password', None)
-        user = self.Meta.model(**validated_data)
 
-        if password is not None:
-            user.set_password(password)
-            user.is_active = True
-        user.save()
-        return user
+class ChangePasswordSerializer(serializers.Serializer):
+
+    class Meta:
+        model = Sales
+        old_password = serializers.CharField(required=True)
+        new_password = serializers.CharField(required=True)
 
 
 class DeveloperSerializer(serializers.ModelSerializer):
@@ -33,7 +30,7 @@ class SalesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sales
-        fields = '__all__'
+        fields = ['full_name', 'email']
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -44,7 +41,9 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class CilentSerializer(serializers.ModelSerializer):
+    course = ProjectSerializer(many=True, read_only=True)
 
     class Meta:
         model = Cilent
         fields = '__all__'
+        depth = 1

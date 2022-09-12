@@ -11,3 +11,6 @@ Authentication:
 We have been using JWT authentication for user Authentication.
 
 Note- Run requirement.txt file and install all the necessary dependency and packages to run this api.
+
+
+Database: Install postgreSQL for DB connection. And install pgadmin for view your tables of the project.

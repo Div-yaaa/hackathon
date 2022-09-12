@@ -1,7 +1,6 @@
 import re
 import smtplib
 from tabulate import tabulate
-from celery import shared_task
 from email.utils import formatdate
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart

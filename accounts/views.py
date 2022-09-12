@@ -1,16 +1,13 @@
 import json
 from rest_framework import status
 from rest_framework.views import APIView
-from dateutil.relativedelta import relativedelta
 from .serializer import *
 from .utils import *
 from .models import *
 from .task import *
-from django.contrib.auth import authenticate
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.http import JsonResponse
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt

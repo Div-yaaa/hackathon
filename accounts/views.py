@@ -1,4 +1,3 @@
-import json
 from rest_framework import status
 from rest_framework.views import APIView
 from .serializer import *
@@ -20,6 +19,7 @@ class SalesRegistrationView(APIView):
         try:
             full_name = request.data['full_name']
             email = request.data['email']
+            is_superadmin = request.data['is_superadmin']
 
             User.objects.create(username=email)
 
@@ -32,14 +32,14 @@ class SalesRegistrationView(APIView):
 
                 sale.full_name = serializer.validated_data.get('full_name')
                 sale.email = serializer.validated_data.get('email')
-                sale.sale_password
+                sale.is_superadmin = serializer.validated_data.get('is_superadmin')
                 sale.save()
                 mail = SendEmailToSales(str(sale.email), str(sale.email), str(sale.sale_password))
 
                 return Response({'success': True, 'message': 'User Created Successfully', 'data': serializer.data},
                                     status=status.HTTP_201_CREATED)
         except Exception as e:
-            return Response({'success': False, 'message': e.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': False, 'message': e.args[0], 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -47,11 +47,13 @@ class LoginView(APIView):
 
     def post(self, request):
         try:
-            print(request.data)
             email = request.data['email']
             sale_password = request.data['sale_password']
-            user = Sales.objects.filter(email=email, sale_password=sale_password)
+            is_superadmin = request.data['is_superadmin']
+
+            user = Sales.objects.filter(email=email, sale_password=sale_password, is_superadmin=is_superadmin)
             if user:
+                is_active = True
                 user = User.objects.get(username=email)
                 refresh = RefreshToken.for_user(user)
                 return Response({"success": True, "message": "Your account has been successfully activated!!",
@@ -84,39 +86,43 @@ class ChangePasswordView(APIView):
 
 
 class DeveloperApi(APIView):
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        print(request)
-        # user = request.user.pk
-        # sale = Sales.objects.get(user_id=user)
         if request.query_params['developer_id'] == "null":
             developer_data = Developer.objects.all().values()
-            return Response({"success": True, "message": "Successfull", "data": developer_data},
-                            status=status.HTTP_200_OK)
+            return Response({"success": True, "message": "Successfull", "data": developer_data}
+                            )
         else:
             developer_id = request.query_params['developer_id']
             developer_data = Developer.objects.filter(id=developer_id).values()
             return Response({"success": True, "message": "Successfull", "data": developer_data},)
 
     def post(self, request):
-        # user = request.user.pk
-        # sale = Sales.objects.get(user_id=user)
         serializer = DeveloperSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"success": True, "message": "Developer Data Saved", "data": serializer.data})
         return Response({"success": False, "message": "NA", "data": serializer.errors})
 
+    def patch(self, request):
+        serializer = DeveloperSerializer(data=request.data)
+        print(request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ProjectApi(APIView):
 
     def get(self, request):
-        # project_id = request.data('project_id')
-        project = Project.objects.all()
-        serializer = ProjectSerializer(project, many=True)
-        return Response({"success": True,"message": "All projects", "data": serializer.data}, status=status.HTTP_200_OK)
+        if request.query_params['project_id'] == "null":
+            project = Project.objects.all().values()
+            return Response({"success": True,"message": "All projects", "data": project}, status=status.HTTP_200_OK)
+        else:
+            project_id = request.query_params['project_id']
+            project = Project.objects.filter(id=project_id).values()
+            return Response({"success": True, "message": "Successfull", "data": project},status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = ProjectSerializer(data=request.data)
@@ -129,45 +135,47 @@ class ProjectApi(APIView):
 class CilentApi(APIView):
 
     def get(self, request):
-        cilent = Cilent.objects.all()
-        serializer = CilentSerializer(cilent, many=True)
-        return Response({'success': True, 'message': 'All Cilent', 'data': serializer.data}, status=status.HTTP_200_OK)
+        if request.query_params['cilent_id'] == "null":
+            cilent = Cilent.objects.all().values()
+            return Response({'success': True, 'message': 'All Cilent', 'data': cilent}, status=status.HTTP_200_OK)
+        else:
+            cilent_id = request.query_params['cilent_id']
+            cilent = Cilent.objects.filter(id=cilent_id).values()
+            return Response({"success": True, "message": "Successfull", "data": cilent}, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = ProjectSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": True, "message": "Cilent Data Saved", "data": serializer.data})
-        return Response({"success": False, "message": "NA", "data": serializer.errors})
+            return Response({"success": True, "message": "Cilent Data Saved", "data": serializer.data},
+                            status=status.HTTP_200_OK)
+        return Response({"success": False, "message": "NA", "data": serializer.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class Scheduled_call(APIView):
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # user = request.user.pk
-        # sale = Sales.objects.get(user_id=user)
         scheduled_call = Scheduled_call.object.all()
         serializer = CilentSerializer(scheduled_call, many=True)
         return Response({"success": True, "message": "Developer Data Saved", "data": serializer.data})
 
-    def post(self, request):
-        dev_uuid = request.GET['dev_uuid']
-        client_uuid = request.GET['client_uuid']
-        project_uuid = request.GET['project_uuid']
-        project_client_dev_data=list(project_client_dev.objects.filters(dev_uuid=dev_uuid).values_list('client_uuid',flat=True))
-        if(len(project_client_dev_data)==0):
-            start_time = request.data['start_time']
-            start_date = request.data['start_date']
-            end_time = request.data['end_time']
-            end_date = request.data['end_date']
-            cilent_mail = request.data['cilent_mail']
-            # developer_mail = request.data['developer_mail']
-            meeting_link = createMeeting()
-            mail = SendEmail(str(cilent_mail), meeting_link[0], meeting_link[1])
-            project_client_dev_obj = project_client_dev_data(dev_uuid=dev_uuid, client_uuid=client_uuid,project_uuid=project_uuid)
-            project_client_dev_obj.save()
-            return Response({'success': True, 'message': 'Test'})
-        else:
-            return Response({'success': True, 'message': 'Selected Developer is already alined within a project'})
+    # def post(self, request):
+    #     dev_uuid = request.GET['dev_uuid']
+    #     client_uuid = request.GET['client_uuid']
+    #     project_uuid = request.GET['project_uuid']
+    #     project_client_dev_data=list(project_client_dev.objects.filters(dev_uuid=dev_uuid).values_list('client_uuid',flat=True))
+    #     if(len(project_client_dev_data)==0):
+    #         start_time = request.data['start_time']
+    #         start_date = request.data['start_date']
+    #         end_time = request.data['end_time']
+    #         end_date = request.data['end_date']
+    #         cilent_mail = request.data['cilent_mail']
+    #         # developer_mail = request.data['developer_mail']
+    #         meeting_link = createMeeting()
+    #         mail = SendEmail(str(cilent_mail), meeting_link[0], meeting_link[1])
+    #         project_client_dev_obj = project_client_dev_data(dev_uuid=dev_uuid, client_uuid=client_uuid,project_uuid=project_uuid)
+    #         project_client_dev_obj.save()
+    #         return Response({'success': True, 'message': 'Test'})
+    #     else:
+    #         return Response({'success': True, 'message': 'Selected Developer is already alined within a project'})

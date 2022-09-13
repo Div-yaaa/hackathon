@@ -18,8 +18,7 @@ class DeveloperAdmin(admin.ModelAdmin):
 
 @admin.register(Cilent)
 class CilentAdmin(admin.ModelAdmin):
-    list_display = ("cilent_name",)
-
+    list_display = ("cilent_name", )
 
 @admin.register(Project)
 class Project(admin.ModelAdmin):
@@ -29,9 +28,6 @@ class Project(admin.ModelAdmin):
 class Scheduled_Call(admin.ModelAdmin):
     list_display = ("cilent", "developer","start_date", "start_time","end_date","end_time","meeting_link")
 
-@admin.register(project_client_dev)
-class project_client_dev(admin.ModelAdmin):
-    list_display = ["dev_uuid", "client_uuid", "project_uuid"]
 
 class Runtime(admin.AdminSite):
     site_header = 'RUNTIME_BUSINESS'

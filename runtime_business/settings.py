@@ -120,15 +120,15 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-#
-# CORS_ORIGIN_ALLOW_ALL = True
 
-CORS_ORIGIN_WHITELIST = (
-  ['http://127.0.0.1:8000',
-   'https://localhost:3000',
-   'http://9b55-122-161-92-249.ngrok.io',
-   'https://9b55-122-161-92-249.ngrok.io']
-)
+CORS_ORIGIN_ALLOW_ALL = True
+
+# CORS_ORIGIN_WHITELIST = (
+#   ['http://127.0.0.1:8000',
+#    'https://localhost:3000',
+#    'http://9b55-122-161-92-249.ngrok.io',
+#    'https://9b55-122-161-92-249.ngrok.io']
+# )
 
 
 CORS_ALLOW_METHODS = [

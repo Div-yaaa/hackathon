@@ -88,10 +88,11 @@ WSGI_APPLICATION = 'runtime_business.wsgi.application'
 DATABASES = {
     'default':
     {
-       'NAME': "d1s0jm69fbbg6q",
-       'USER':"bbsfbyncnqfhir",
-       'PASSWORD': "9b52abd873721b99f7aa1fdef94f6c6272e5fd53cff28ac067bfb69d971bd08b",
-       'HOST': "ec2-54-91-223-99.compute-1.amazonaws.com",
+       'ENGINE': 'django.db.backends.postgresql_psycopg2',
+       'NAME': "de4cfh4g5ck7g1",
+       'USER': "boayplbpdctozp",
+       'PASSWORD': "75127835b34068872099fa30dafdbd9ecd190340be2952642dcf4702ff1b1032",
+       'HOST': "ec2-34-231-42-166.compute-1.amazonaws.com",
        'PORT': '5432',
     }
 }

@@ -20,10 +20,14 @@ class DeveloperAdmin(admin.ModelAdmin):
 class CilentAdmin(admin.ModelAdmin):
     list_display = ("cilent_name", )
 
-
 @admin.register(Project)
 class Project(admin.ModelAdmin):
     list_display = ("project_name", "project_role")
+
+@admin.register(Scheduled_Call)
+class Scheduled_Call(admin.ModelAdmin):
+    list_display = ("cilent", "developer","start_date", "start_time","end_date","end_time","meeting_link")
+
 
 class Runtime(admin.AdminSite):
     site_header = 'RUNTIME_BUSINESS'

@@ -32,6 +32,7 @@ class Sales(models.Model):
     last_login = models.DateField(auto_now=True)
     sale_password = models.CharField(max_length=100, null=True)
     is_active = models.BooleanField(default=False)
+    is_superadmin = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'Sales'
@@ -80,6 +81,7 @@ class Project(models.Model):
     project_tech_stack = ArrayField(models.CharField(max_length=1000), null=True, blank=True)
     description = models.CharField(max_length=300, null=True, blank=True)
     date = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'Project'
@@ -91,11 +93,15 @@ class Project(models.Model):
 class Cilent(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     cilent_name = models.CharField(max_length=100)
+    cilent_email = models.EmailField(max_length=200)
     cilent_company_name = models.CharField(max_length=100)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'Cilent'
+
+    def __str__(self):
+        return str(self.cilent_name)
 
 
 class Scheduled_Call(models.Model):
@@ -109,4 +115,3 @@ class Scheduled_Call(models.Model):
 
     class Meta:
         db_table = 'Scheduled_call'
-

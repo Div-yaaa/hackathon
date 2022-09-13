@@ -8,7 +8,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sales
-        fields = ('name', 'email', 'password')
+        fields = ('full_name', 'email', 'password', 'is_superadmin')
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -30,7 +30,7 @@ class SalesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sales
-        fields = ['full_name', 'email']
+        fields = ['full_name', 'email', 'is_superadmin']
 
 
 class ProjectSerializer(serializers.ModelSerializer):
